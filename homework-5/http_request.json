@@ -1,0 +1,55 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "website"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -128,
+        -32
+      ],
+      "id": "eeffcc12-412a-4998-b792-d14129377294",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.website }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        48,
+        -32
+      ],
+      "id": "75623b37-44e1-4a59-ba59-01597e1c2c05",
+      "name": "HTTP Request"
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4c70af5bdb4b537829bc855d3026d4a5c716aef70bc4def0a52bc550b6809f9c"
+  }
+}

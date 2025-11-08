@@ -1,0 +1,66 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "command"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -128,
+        -32
+      ],
+      "id": "a954d9a9-add3-4d5c-a429-66de80d23b08",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "authentication": "privateKey",
+        "command": "={{ $json.command }}"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        48,
+        -32
+      ],
+      "id": "3db33115-bcd7-451f-b852-0d646811f9ee",
+      "name": "Execute a command",
+      "credentials": {
+        "sshPrivateKey": {
+          "id": "5UvEHywsL7qMAUjA",
+          "name": "SSH Password account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Execute a command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a command": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4c70af5bdb4b537829bc855d3026d4a5c716aef70bc4def0a52bc550b6809f9c"
+  }
+}
