@@ -1,0 +1,507 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "chatId": "638807445",
+        "text": "=Website_Up: {{ $json.output.website_up }}\n\nMessage: {{ $json.output.message }}",
+        "additionalFields": {
+          "appendAttribution": "={{ false }}",
+          "parse_mode": "=HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        736,
+        160
+      ],
+      "id": "9c6d869f-e436-47e1-a061-2c4e2d5c5645",
+      "name": "Send message website down",
+      "webhookId": "ffdd7e4d-1d06-449e-a7a3-6c2b346bf405",
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "0RcTKtVJiKtRd8vd",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Alex, a Senior DevOps. Your jobs are to check and resolve problems with website https://almukh.admin2.southbridge.ru/.\n\n{{ $json.prompt }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        32,
+        160
+      ],
+      "id": "565d4c54-5fa1-4546-99fd-09ddf4987712",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "de8f7016-d7c3-42d5-ad6d-29c97d458dab",
+              "leftValue": "={{ $json.output.website_up }}",
+              "rightValue": "=false",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": "=",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        176
+      ],
+      "id": "7c6a87cf-d06d-4a90-ac4b-719d66ff22b3",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dc4aee40-534a-4bad-9177-a09f64044511",
+              "name": "prompt",
+              "value": "When asked to check if the website up. Follow these step: 1. Access the website using provided \"Visit website\" tool.  2. The website is \"up\" only if the tool \"Visit website\" output has the exact substring: System Online .  3. If the website is not up via the \"Visit website\" tool, use \"DevOps\" tool to check if the website container is running by executing the command \"sudo docker ps\".  4. If the container is not running, use \"DevOps\"  tool to check the exit code using the command  \"sudo docker inspect n8n-compose-website-1 --format='{{.State.ExitCode}}'\".  5. Use \"DevOps\" tool to retrieve the recent logs using command \"sudo docker logs n8n-compose-website-1 --tail 10\"  6. Alex, if not approved  advice me - what command I need to do with existing problem.  7. Report the website's status as either \"up\" or \"down\". If the website is down, include an explanation based on \"Visit website\" tool responce (e.g., connection error, timeout, or incrorrect content), the \"DevOps\" tool responce (e.g., container not running, exit code and relevant log details). Responce MUST be exactly four fields: website_up type of boolean, approved type of boolean, command type of string and message type of string.",
+              "type": "string"
+            },
+            {
+              "id": "6586e3f3-cc6c-4165-a19a-06b1a48a6813",
+              "name": "chatid",
+              "value": "=alex{{ $execution.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -160,
+        176
+      ],
+      "id": "fd90d751-906a-4c2a-b8ce-b14887e8701e",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -336,
+        176
+      ],
+      "id": "4f3aab82-af71-4a38-b837-1e2c335fdf44",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt://b1gsv0pcia4r24f4krub/qwen3-235b-a22b-fp8/latest",
+          "mode": "list",
+          "cachedResultName": "gpt://b1gsv0pcia4r24f4krub/qwen3-235b-a22b-fp8/latest"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        368
+      ],
+      "id": "d9b3e086-4cae-43cd-bd4c-86ea1a651938",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "qzPWhDkk9eSSnrIS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"website_up\": true,\n\t\"message\": \"message\",\n    \"command\": \"command\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        464,
+        368
+      ],
+      "id": "7d293768-5494-4e64-b287-de2306d0c83c",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "hQgwqaSpSTZJYurq",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/hQgwqaSpSTZJYurq",
+          "cachedResultName": "http_request"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "website": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('website', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "website"
+          ],
+          "schema": [
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        368
+      ],
+      "id": "ae771f37-b3a4-4cdf-910a-ac0df8f2f98a",
+      "name": "Visit website"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "842af607-02ee-4c5c-a284-a87a6b7ec796",
+              "leftValue": "={{ $json.output.website_up }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        304,
+        160
+      ],
+      "id": "862c7913-1628-4012-8b2d-803ac92e07f9",
+      "name": "approve"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "638807445",
+        "message": "=Website status: {{ $json.output.website_up }}\n\nMessage: {{ $json.output.message.replace(\"_\", \" \") }}\n\nCommand: {{ $json.output.command }}",
+        "options": {
+          "appendAttribution": "={{ false }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        -48
+      ],
+      "id": "785b409f-f47c-4d6a-811d-d0aa9e69fcad",
+      "name": "Ask approve",
+      "webhookId": "13d27231-bb0d-4f91-b374-886e9f1d0646",
+      "credentials": {
+        "telegramApi": {
+          "id": "0RcTKtVJiKtRd8vd",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5b98d502-61e8-45af-bcb2-d747071ea2dd",
+              "name": "chatid",
+              "value": "=alex{{ $execution.id }}",
+              "type": "string"
+            },
+            {
+              "id": "6023d097-7eda-4748-a58c-081af2cc9cbd",
+              "name": "approved",
+              "value": "={{ $json.data.approved }}",
+              "type": "string"
+            },
+            {
+              "id": "b3eccf3f-de8c-4494-83b4-ad5575fdb932",
+              "name": "prompt",
+              "value": "When asked to restore the website try to resolve the problem",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        -48
+      ],
+      "id": "96f8cb10-5e4d-4b92-aea4-52dd4bdbad4c",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.chatid }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        32,
+        368
+      ],
+      "id": "dff469b7-023e-4441-8d54-7e80e4515d01",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "UxPM95dqvbIqxlwn",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/UxPM95dqvbIqxlwn",
+          "cachedResultName": "ssh_n8n_server"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "command": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('command', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "command"
+          ],
+          "schema": [
+            {
+              "id": "command",
+              "displayName": "command",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        368
+      ],
+      "id": "8df1a105-66c4-4975-bc6e-69096c8a2d35",
+      "name": "DevOps"
+    }
+  ],
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "approve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send message website down",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Visit website": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "approve": {
+      "main": [
+        [
+          {
+            "node": "Ask approve",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask approve": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DevOps": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4c70af5bdb4b537829bc855d3026d4a5c716aef70bc4def0a52bc550b6809f9c"
+  }
+}

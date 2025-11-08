@@ -1,0 +1,279 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        -112
+      ],
+      "id": "a2ab0bb5-8acf-4282-8114-955feef061e4",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Краткий вывод новостей и статей с ссылкой и заголовком об kubernetes и devops за последний месяц.\nНе добавлять комментарии. \nНе более 10 пунктов",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -640,
+        -96
+      ],
+      "id": "11ade534-abfa-4f5c-ae2c-26efa12d9b2d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "z-ai/glm-4.5-air:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -704,
+        112
+      ],
+      "id": "7080f58d-cdd1-4127-8622-25e47e0a30a1",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "wVzL0nIELSOpe2it",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1cdbc900-6e82-45e6-848a-5a241ba4c26c",
+              "name": "content",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -256,
+        -80
+      ],
+      "id": "34fda02a-58fa-49f6-b884-57cdacf5d9d1",
+      "name": "Output (News Summary)"
+    },
+    {
+      "parameters": {
+        "url": "https://medium.com/feed/tag/devops",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedReadTool",
+      "typeVersion": 1.2,
+      "position": [
+        -304,
+        112
+      ],
+      "id": "58abc2ac-8596-48d7-ab7b-67525ae71ca5",
+      "name": "Medium-Devops"
+    },
+    {
+      "parameters": {
+        "url": "https://medium.com/feed/tag/kubernetes",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedReadTool",
+      "typeVersion": 1.2,
+      "position": [
+        -432,
+        112
+      ],
+      "id": "d4b390e4-37d3-4d82-a8e0-aca3df8c87cf",
+      "name": "Medium-k8s"
+    },
+    {
+      "parameters": {
+        "chatId": "638807445",
+        "text": "={{ $json.content }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -48,
+        -80
+      ],
+      "id": "68c9ec0a-0851-4567-ae0e-1a717f8a5eb1",
+      "name": "Send a text message",
+      "webhookId": "de751863-edc6-4079-a30f-f0eb08124e2f",
+      "credentials": {
+        "telegramApi": {
+          "id": "WfwWyQr0WqJzAuBS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "almukh75@gmail.com",
+        "subject": "Your news daily summary",
+        "emailType": "text",
+        "message": "={{ $json.content }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -48,
+        112
+      ],
+      "id": "d313f866-8c4d-4d36-8205-ea86238c6db8",
+      "name": "Send summary with Gmail",
+      "webhookId": "093b04f1-5e78-4926-9863-1b100d6f2ead",
+      "notesInFlow": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "RimB3D51ooYAdE4M",
+          "name": "Gmail account"
+        }
+      },
+      "notes": "Double-click to open"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -976,
+        64
+      ],
+      "id": "a2475a2d-c282-42c8-9e4b-3cf9f465a997",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -592,
+        160
+      ],
+      "id": "fc17f23a-18a3-4465-b1b9-f98d49f1339e",
+      "name": "Simple Memory"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Output (News Summary)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output (News Summary)": {
+      "main": [
+        [
+          {
+            "node": "Send summary with Gmail",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Medium-Devops": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Medium-k8s": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "64acbdf7e8b712f12b57a9e834afd063807a76f56948e0aad641ef843e86e690"
+  }
+}
