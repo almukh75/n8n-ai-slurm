@@ -1,0 +1,562 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "chatId": "638807445",
+        "text": "=Website_Up: {{ $json.output.website_up }}\n\nMessage: {{ $json.output.message }}",
+        "additionalFields": {
+          "appendAttribution": "={{ false }}",
+          "parse_mode": "=HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1008,
+        -80
+      ],
+      "id": "5ef56b39-99b5-42d1-a01b-f2c4dddddc2e",
+      "name": "Send message website down",
+      "webhookId": "abd68c2b-1c4b-434d-a1b6-592a997ff681",
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "0RcTKtVJiKtRd8vd",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Alex, a Senior DevOps. Your jobs are to check if the website https://almukh.admin2.southbridge.ru/ is up.\n\n{{ $json.prompt }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        288,
+        -64
+      ],
+      "id": "d2dabc3d-a137-4107-b242-b903a0153c36",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dc4aee40-534a-4bad-9177-a09f64044511",
+              "name": "prompt",
+              "value": "When asked to check if the website up. Follow these step: 1. Access the website using provided \"Visit website\" tool.  2. The website is \"up\" only if the tool \"Visit website\" output has the exact substring: Welcome nginx .  3. If the website is not up via the \"Visit website\" tool, use \"DevOps\" tool to check status.phase of pod with labels \"app=my-nginx\" 4. Report the website's status as either \"up\" or \"down\". If the website is down, include an explanation based on \"Visit website\" tool responce (e.g., connection error, timeout, or incrorrect content), the \"DevOps\" tool responce with status.phase of pod. Responce MUST be exactly three fields: website_up type of boolean, message type of string, is_check_logs type of boolean == false",
+              "type": "string"
+            },
+            {
+              "id": "6586e3f3-cc6c-4165-a19a-06b1a48a6813",
+              "name": "chatid",
+              "value": "=alex{{ $execution.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        48,
+        -80
+      ],
+      "id": "7d23cda8-e24f-4b2e-9d31-335d5311e653",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -160,
+        -80
+      ],
+      "id": "b8c2df30-2bbd-4c1b-a445-b7d427ccdd30",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt://b1gsv0pcia4r24f4krub/qwen3-235b-a22b-fp8/latest",
+          "mode": "list",
+          "cachedResultName": "gpt://b1gsv0pcia4r24f4krub/qwen3-235b-a22b-fp8/latest"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        128
+      ],
+      "id": "0078ddc4-e349-4480-bd92-17f74c285382",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "qzPWhDkk9eSSnrIS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"website_up\": true,\n\t\"message\": \"message\",\n    \"is_check_logs\": false\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        656,
+        112
+      ],
+      "id": "89bfff28-3449-49e1-9ba8-57f3f6e7267c",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "hQgwqaSpSTZJYurq",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/hQgwqaSpSTZJYurq",
+          "cachedResultName": "http_request"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "website": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('website', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "website"
+          ],
+          "schema": [
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        384,
+        128
+      ],
+      "id": "cd74d3d3-a3c9-4cd0-af3b-05df2c63eeb1",
+      "name": "Visit website"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.chatid }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        256,
+        128
+      ],
+      "id": "0b177c0d-ce3d-4784-8c02-bdd9a7191d93",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "e30q1oJtfEJFfT3a",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/e30q1oJtfEJFfT3a",
+          "cachedResultName": "get_k8s_resource"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "resource": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('resource', ``, 'string') }}",
+            "labels": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('labels', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "command"
+          ],
+          "schema": [
+            {
+              "id": "resource",
+              "displayName": "resource",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "labels",
+              "displayName": "labels",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        128
+      ],
+      "id": "a060bce7-c576-4e33-a094-970aa18c55cb",
+      "name": "DevOps"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "8LQ3ZRkILKBR3uke",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/8LQ3ZRkILKBR3uke",
+          "cachedResultName": "logs_k8s"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "command": "kubectl logs -l app=my-nginx"
+          },
+          "matchingColumns": [
+            "command"
+          ],
+          "schema": [
+            {
+              "id": "command",
+              "displayName": "command",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1024,
+        -336
+      ],
+      "id": "57bbdeed-cf80-45b2-9abe-440ded6aae2c",
+      "name": "Call 'logs_k8s'"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "for item in items:\n    # Access data from the current item\n    input_value = item[\"json\"][\"stdout\"]\n\n    error_keywords = ['error', 'failed', 'permission denied', 'invalid']\n    text = input_value.lower()\n    \n    error_found = any(keyword in text for keyword in error_keywords)\n    error_line = \"\"\n    \n    if error_found:\n        lines = str(text).split('\\n')\n        for line in lines:\n            if any(keyword in line.lower() for keyword in error_keywords):\n                error_line = line.strip()\n                break\n# Return the modified items list.\n# n8n expects a list of dictionaries as output.\n# return items\nreturn [{\n    \"error_found\": error_found,\n    \"error_line\": error_line\n}]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        -336
+      ],
+      "id": "1e053a13-ba3c-41d7-8634-ad02a3a2f990",
+      "name": "Code in Python"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dc4aee40-534a-4bad-9177-a09f64044511",
+              "name": "prompt",
+              "value": "When asked to analyze why the website down. 1. Analyze the content of error_line and why pod is down 2. Advice me what I need to do the pod is working and the website up 3. Report the website's status as either \"up\" or \"down\". If the website is down, include an explanation based on: Analyze the content of error_line. Responce MUST be exactly three fields: website_up type of boolean, message type of string, is_check_logs type of boolean",
+              "type": "string"
+            },
+            {
+              "id": "6586e3f3-cc6c-4165-a19a-06b1a48a6813",
+              "name": "chatid",
+              "value": "=alex{{ $execution.id }}",
+              "type": "string"
+            },
+            {
+              "id": "37bbe5fd-e41a-4075-b2a5-0afbf0098d0a",
+              "name": "is_check_logs",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1392,
+        -336
+      ],
+      "id": "ba8df088-0d6e-4817-bdb1-01d09b5c708c",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "de8f7016-d7c3-42d5-ad6d-29c97d458dab",
+              "leftValue": "={{ $json.output.website_up }}",
+              "rightValue": "=false",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": "=",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        -64
+      ],
+      "id": "5a4b2dec-c7cb-4f6b-9642-0f01e3b87bfa",
+      "name": "If log"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bae839da-717b-42eb-acfc-2d1249c33b43",
+              "leftValue": "={{ $json.output.is_check_logs }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        -320
+      ],
+      "id": "6e483466-1d9a-439e-a892-1ab019e8a986",
+      "name": "If"
+    }
+  ],
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Visit website": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DevOps": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'logs_k8s'": {
+      "main": [
+        [
+          {
+            "node": "Code in Python",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in Python": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If log": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Call 'logs_k8s'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message website down",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4c70af5bdb4b537829bc855d3026d4a5c716aef70bc4def0a52bc550b6809f9c"
+  }
+}

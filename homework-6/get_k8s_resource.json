@@ -1,0 +1,65 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "resource"
+            },
+            {
+              "name": "labels"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -432,
+        -144
+      ],
+      "id": "45a7f342-f4e6-4736-a1db-07997b8d2249",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "resource": "={{ $json.resource }}",
+        "labelSelector": "={{ $json.labels }}"
+      },
+      "type": "n8n-nodes-k8s.kubernetes",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        -144
+      ],
+      "id": "52cb46c6-750a-4fb8-ba81-acd1cb24c366",
+      "name": "Get pods",
+      "credentials": {
+        "kubernetesCredentialsApi": {
+          "id": "xlcVTwduseuGyadR",
+          "name": "Kubernetes Credentials account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get pods",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4c70af5bdb4b537829bc855d3026d4a5c716aef70bc4def0a52bc550b6809f9c"
+  }
+}

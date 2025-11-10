@@ -1,0 +1,383 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "chatId": "638807445",
+        "text": "=Website_Up: {{ $json.output.website_up }}\n\nMessage: {{ $json.output.message }}",
+        "additionalFields": {
+          "appendAttribution": "={{ false }}",
+          "parse_mode": "=HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        608,
+        144
+      ],
+      "id": "8864078f-94a2-4f3f-9699-02cc9a95d82e",
+      "name": "Send message website down",
+      "webhookId": "ca27f060-1313-4b4b-a730-91bad47da78f",
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "0RcTKtVJiKtRd8vd",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Alex, a Senior DevOps. Your jobs are to check if the website https://almukh.admin2.southbridge.ru/ is up.\n\n{{ $json.prompt }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        32,
+        160
+      ],
+      "id": "0bb1ed28-3d79-4436-b1a4-acfc3a618639",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "de8f7016-d7c3-42d5-ad6d-29c97d458dab",
+              "leftValue": "={{ $json.output.website_up }}",
+              "rightValue": "=false",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": "=",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        384,
+        160
+      ],
+      "id": "87e4e261-a84d-42b4-9646-d1244731a8b8",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dc4aee40-534a-4bad-9177-a09f64044511",
+              "name": "prompt",
+              "value": "When asked to check if the website up. Follow these step: 1. Access the website using provided \"Visit website\" tool.  2. The website is \"up\" only if the tool \"Visit website\" output has the exact substring: Welcome nginx .  3. If the website is not up via the \"Visit website\" tool, use \"DevOps\" tool to check status.phase of pod with labels \"app=my-nginx\" 4. Report the website's status as either \"up\" or \"down\". If the website is down, include an explanation based on \"Visit website\" tool responce (e.g., connection error, timeout, or incrorrect content), the \"DevOps\" tool responce with status.phase of pod. Responce MUST be exactly four fields: website_up type of boolean, and message type of string.",
+              "type": "string"
+            },
+            {
+              "id": "6586e3f3-cc6c-4165-a19a-06b1a48a6813",
+              "name": "chatid",
+              "value": "=alex{{ $execution.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -160,
+        176
+      ],
+      "id": "3cd5a3a4-c7a6-4fe6-9c76-b8a6540b52bc",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -336,
+        176
+      ],
+      "id": "634fb807-5375-431d-80fc-98f46285e7c9",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt://b1gsv0pcia4r24f4krub/qwen3-235b-a22b-fp8/latest",
+          "mode": "list",
+          "cachedResultName": "gpt://b1gsv0pcia4r24f4krub/qwen3-235b-a22b-fp8/latest"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        368
+      ],
+      "id": "91d99300-82b4-4ac2-a25a-babcf829567b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "qzPWhDkk9eSSnrIS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"website_up\": true,\n\t\"message\": \"message\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        464,
+        368
+      ],
+      "id": "d2f93b34-ebd3-4d10-9ba5-fe7e0ff1f649",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "hQgwqaSpSTZJYurq",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/hQgwqaSpSTZJYurq",
+          "cachedResultName": "http_request"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "website": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('website', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "website"
+          ],
+          "schema": [
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        368
+      ],
+      "id": "f7bd44aa-4a0b-4406-9229-94c231014769",
+      "name": "Visit website"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.chatid }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        32,
+        368
+      ],
+      "id": "79599def-3eb7-4b80-a94a-90a5a81a9937",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "e30q1oJtfEJFfT3a",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/e30q1oJtfEJFfT3a",
+          "cachedResultName": "get_k8s_resource"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "resource": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('resource', ``, 'string') }}",
+            "labels": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('labels', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "command"
+          ],
+          "schema": [
+            {
+              "id": "resource",
+              "displayName": "resource",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "labels",
+              "displayName": "labels",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        368
+      ],
+      "id": "67da246f-07a9-4796-ab80-a3e8d1cb0ac7",
+      "name": "DevOps"
+    }
+  ],
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send message website down",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Visit website": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DevOps": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4c70af5bdb4b537829bc855d3026d4a5c716aef70bc4def0a52bc550b6809f9c"
+  }
+}
